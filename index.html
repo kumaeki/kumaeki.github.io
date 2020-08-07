@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-在Mac中编译openjdk9（失败）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/08/07/%E5%9C%A8Mac%E4%B8%AD%E7%BC%96%E8%AF%91openjdk9%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89/" class="article-date">
+  <time datetime="2020-08-07T01:24:37.468Z" itemprop="datePublished">2020-08-07</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>MAC的OS版本 10.15.6。</p>
+<p>安装最新版本的xcode，从applestore下载安装。</p>
+<p>安装CommandLineTools，可以在命令行调用xcode。安装11版本。</p>
+<pre><code>xcode-select -install</code></pre>
+<p>openjdk是用mercurial 管理的，所以先安装 mercurial。</p>
+<pre><code>brew install mercurial </code></pre>
+<p>然后clone代码。mercurial和git很像，非常像，可以基本当作一个建议版本的git来使用。</p>
+<pre><code>hg clone http://hg.openjdk.java.net/jdk/jdk14</code></pre>
+<p>检查配置<br>    bash configure</p>
+<pre><code>configure: error: No xcodebuild tool and no system framework headers found, use --with-sysroot or --with-sdk-name to provide a path to a valid SDK
+/Users/sou/jdk14/build/.configure-support/generated-configure.sh: line 82: 5: Bad file descriptor
+configure exiting with result code 1</code></pre>
+<p>报错，提示找不到现存的java环境。那么更改一下xocde的build路径。</p>
+<pre><code>sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer</code></pre>
+<p>然后再试试检查配置</p>
+<pre><code>bash configure
+
+configure: Found potential Boot JDK using well-known locations (in /Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk)
+configure: Potential Boot JDK found at /Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home is incorrect JDK version (java version &quot;1.8.0_221&quot;); ignoring
+configure: (Your Boot JDK version must be one of: 13 14)</code></pre>
+<p>我安装的是8，看来8是没有资格编译14的。老老实实去下载openjdk9来编译。</p>
+<pre><code>hg clone http://hg.openjdk.java.net/jdk9/jdk9</code></pre>
+<p>openjdk9下载的文件特别少，里面有一个get_source.sh文件，通过它来下载全部剩下的文件。</p>
+<pre><code>#给这个文件开放权限
+chmon 777 get_source.sh
+
+#执行shell文件下载源代码
+./ get_source.sh</code></pre>
+<p>下载所有代码之后再次运行bash configure 检查配置，发现还是报错，少了一个freetype<br>安装freetype</p>
+<pre><code>brew install freetype</code></pre>
+<p>安装完成之后竟然还是提示找不到freetype。上网找找看。<br>原来要自己指定freetype的安装路径</p>
+<pre><code>brew list freetype
+
+/usr/local/Cellar/freetype/2.10.2/bin/freetype-config
+/usr/local/Cellar/freetype/2.10.2/include/freetype2/ (50 files)
+/usr/local/Cellar/freetype/2.10.2/lib/libfreetype.6.dylib
+/usr/local/Cellar/freetype/2.10.2/lib/pkgconfig/freetype2.pc
+/usr/local/Cellar/freetype/2.10.2/lib/ (2 other files)
+/usr/local/Cellar/freetype/2.10.2/share/aclocal/freetype2.m4
+/usr/local/Cellar/freetype/2.10.2/share/man/man1/freetype-config.1</code></pre>
+<p>得到freetype的路径之后，加上–with-freetype参数之后再执行congifure</p>
+<pre><code>bash configure -with-freetype=/usr/local/Cellar/freetype/2.10.2
+.
+.
+.
+A new configuration has been successfully created in
+/Users/sou/jdk9/build/macosx-x86_64-normal-server-release
+using configure arguments &#39;--with-freetype=/usr/local/Cellar/freetype/2.10.2&#39;.
+
+Configuration summary:
+* Debug level:    release
+* HS debug level: product
+* JDK variant:    normal
+* JVM variants:   server
+* OpenJDK target: OS: macosx, CPU architecture: x86, address length: 64
+* Version string: 9-internal+0-adhoc.sou.jdk9 (9-internal)
+
+Tools summary:
+* Boot JDK:       java version &quot;1.8.0_221&quot; Java(TM) SE Runtime Environment (build 1.8.0_221-b11) Java HotSpot(TM) 64-Bit Server VM (build 25.221-b11, mixed mode)  (at /Library/Java/JavaVirtualMachines/jdk1.8.0_221.jdk/Contents/Home)
+* Toolchain:      clang (clang/LLVM from Xcode 11.6)
+* C Compiler:     Version 11.0.3 (at /usr/bin/clang)
+* C++ Compiler:   Version 11.0.3 (at /usr/bin/clang++)
+
+Build performance summary:
+* Cores to use:   4
+* Memory limit:   4096 MB</code></pre>
+<p>终于通过了。<br>然后进行编译<br>make images<br>这里要注意，每次编译的时候需要县make clean，清除上一次的结果再进行编译，不然容易出奇怪的问题。<br>编译错误1<br>出错。</p>
+<pre><code>clang: error: include path for libstdc++ headers not found; pass &#39;-stdlib=libc++&#39; on the command line to use the libc++ standard library instead [-Werror,-Wstdlibcxx-not-found]</code></pre>
+<p>试了很多方法，然后发现试因为xcode从10开始就删除了lstdc++，但是openjdk9的hotspot中用到了。所以自己从网上下载需要的库，然后copy到对应的文件夹。也可以安装老版本的xocde，然后从老版本copy到新版本。</p>
+<pre><code>https://github.com/imkiwa/xcode-missing-libstdc-</code></pre>
+<p>注意，copy的时候一定要注意安装目录是否正确。<br>编译错误2<br>解决了lib的问题之后，再次编译，还是出了问题。</p>
+<pre><code>/Users/sou/jdk9/hotspot/src/share/vm/gc/g1/heapRegionSet.hpp:126:5: error: macro expansion producing &#39;defined&#39; has undefined behavior [-Werror,-Wexpansion-to-defined]
+#if HEAP_REGION_SET_FORCE_VERIFY
+^
+/Users/sou/jdk9/hotspot/src/share/vm/gc/g1/heapRegionSet.hpp:53:38: note: expanded from macro &#39;HEAP_REGION_SET_FORCE_VERIFY&#39;
+#define HEAP_REGION_SET_FORCE_VERIFY defined(ASSERT)</code></pre>
+<p>打开文件heapRegionSet.hpp，将defined(ASSERT)改为0</p>
+<pre><code>cd /Users/sou/jdk9/hotspot/src/share/vm/gc/g1
+vim heapRegionSet.hpp</code></pre>
+<p>编译错误3</p>
+<pre><code>/Users/sou/jdk9/hotspot/src/share/vm/memory/binaryTreeDictionary.hpp:167:12: error: instantiation of variable &#39;TreeChunk&lt;FreeChunk, AdaptiveFreeList&lt;FreeChunk&gt; &gt;::_min_tree_chunk_size&#39; required here, but no definition is available [-Werror,-Wundefined-var-template]
+return _min_tree_chunk_size;</code></pre>
+<p>貌似把一个warming错误的作为error来处理。这里需要重新bash cofigure一下才行。</p>
+<pre><code>bash configure -with-freetype=/usr/local/Cellar/freetype/2.10.2 --disable-warnings-as-errors
+编译错误4
+* For target hotspot_variant-server_libjvm_objs_lcm.o:
+/Users/sou/jdk9/hotspot/src/share/vm/opto/lcm.cpp:42:35: error: ordered comparison between pointer and zero (&#39;address&#39; (aka &#39;unsigned char *&#39;) and &#39;int&#39;)
+if (Universe::narrow_oop_base() &gt; 0) &#123; // Implies UseCompressedOops.</code></pre>
+<p>修改文件/Users/sou/jdk9/hotspot/src/share/vm/opto/lcm.cpp，</p>
+<pre><code>if (Universe::narrow_oop_base() &gt; 0)</code></pre>
+<p>改为</p>
+<pre><code>if (Universe::narrow_oop_base() ！= 0)</code></pre>
+<p>终于只有warning信息，而没有错误信息了，但是还是不行，这次是只报错，但是不给错误信息。<br>放弃了，老老实实编译openjdk14吧。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/08/07/%E5%9C%A8Mac%E4%B8%AD%E7%BC%96%E8%AF%91openjdk9%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89/" data-id="ckdjjt0gf0001tlrcbz9ddzzh" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-在docker中搭建JAVA开发环境" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/17/%E5%9C%A8docker%E4%B8%AD%E6%90%AD%E5%BB%BAJAVA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/" class="article-date">
+  <time datetime="2020-07-17T07:43:02.000Z" itemprop="datePublished">2020-07-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/17/%E5%9C%A8docker%E4%B8%AD%E6%90%AD%E5%BB%BAJAVA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/">在docker中搭建JAVA开发环境</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>其实步骤都写在了官方文档里面,但是完全照着做还是会有点问题.这里主要是把文档中没有明确写出来的东西记下来.</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/docker/labs/tree/master/developer-tools/java/" title="https://github.com/docker/labs/tree/master/developer-tools/java/">https://github.com/docker/labs/tree/master/developer-tools/java/</a></p>
+<h1 id="删除image"><a href="#删除image" class="headerlink" title="删除image"></a>删除image</h1><p>默认是无法直接删除container仍然有效的image的.想删除需要先停止/删除对应的container</p>
+<pre><code># Stop one or more running containers
+sudo docker container stop &quot;container名&quot;
+
+# Remove one or more containers
+sudo docker container rm &quot;container名&quot;
+# Remove all stopped containers
+sudo docker container prune</code></pre>
+<p>然后再删除image</p>
+<pre><code># Remove one or more images
+sudo docker image rm &quot;image名&quot;
+# Remove unused images
+sudo docker image prune</code></pre>
+<h1 id="安装jboss"><a href="#安装jboss" class="headerlink" title="安装jboss"></a>安装jboss</h1><p>在文档中并没有直接给出jboss的安装过程,我们可以从github上找到jboss,clone下来之后build镜像.</p>
+<pre><code>mvn -f pom.xml package -Pdocker</code></pre>
+<h1 id="打包war"><a href="#打包war" class="headerlink" title="打包war"></a>打包war</h1><p>文档中给出的javaee7的war的github地址是无效的,但是mvn的project还是在的.和jboss一样我们clone下来,自己用mvn package命令来打包war.</p>
+<h1 id="deploy"><a href="#deploy" class="headerlink" title="deploy"></a>deploy</h1><p>文档中用的是</p>
+<pre><code>FROM jboss/wildfly:latest
+RUN curl -L https://github.com/javaee-samples/javaee7-simple-sample/releases/download/v1.10/javaee7-simple-sample-1.10.war -o /opt/jboss/wildfly/standalone/deployments/javaee-simple-sample.war</code></pre>
+<p>因为war包的地址失效,所以我替换成本地的war</p>
+<pre><code>FROM jboss/wildfly:latest
+ADD target/javaee7-simple-sample.war /opt/jboss/wildfly/standalone/deployments/</code></pre>
+<p>生成镜像</p>
+<pre><code>docker image build -t javaee-sample .</code></pre>
+<p>运行</p>
+<pre><code>docker container run -d -p 8080:8080 javaee-sample</code></pre>
+<p>然后在浏览器中查看结果.</p>
+<pre><code>http://localhost:8080/javaee7-simple-sample/resources/persons</code></pre>
+<h1 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h1><p>1.本地的文件拷贝不要用系统自带的cp,会有权限问题,用docker的copy或者add</p>
+<p>2.拷贝文件的时候,一定要注意是否重命名.在浏览器中查看结果的时候,我就是因为少打了一个7导致始终得不到想要的结果.</p>
+<p>3.遇事不决先重启!!遇事不决先重启!!遇事不决先重启!! windows我真的是受够了.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/17/%E5%9C%A8docker%E4%B8%AD%E6%90%AD%E5%BB%BAJAVA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/" data-id="ckdjjt0gk0003tlrc06ot7sif" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-win10环境ubuntu子系统中安装docker" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/14/win10%E7%8E%AF%E5%A2%83ubuntu%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%AE%89%E8%A3%85docker/" class="article-date">
+  <time datetime="2020-07-14T08:29:01.000Z" itemprop="datePublished">2020-07-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/14/win10%E7%8E%AF%E5%A2%83ubuntu%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%AE%89%E8%A3%85docker/">win10环境ubuntu子系统中安装docker</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>历经千辛万苦才成功,也是不容易.把各种坑记下来.</p>
+<h1 id="Win10的版本"><a href="#Win10的版本" class="headerlink" title="Win10的版本"></a>Win10的版本</h1><p>虽然大家都是win10, 但是子版本不同,会造成docker是否可用.</p>
+<p>docker是基于linux的,windows的支持确实不好.wsl2才完全支持, wsl1可以洗洗睡了.</p>
+<pre><code>WIN + R 打开运行栏,输入winver</code></pre>
+<p>可以确认win10的详细版本,只有2004以上才支持wsl2.</p>
+<p>如果低于2004, 先升级到2004(windosw的update, 或者手动升级<a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/software-download/windows10" title="https://www.microsoft.com/en-us/software-download/windows10">https://www.microsoft.com/en-us/software-download/windows10</a>)</p>
+<h1 id="开启WSl2"><a href="#开启WSl2" class="headerlink" title="开启WSl2"></a>开启WSl2</h1><p>用管理员权限打开powershell,输入以下命令开启wsl,并将wsl2设置为默认</p>
+<pre><code>dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+wsl --set-default-version 2</code></pre>
+<h1 id="安装ubuntu"><a href="#安装ubuntu" class="headerlink" title="安装ubuntu"></a>安装ubuntu</h1><p>打开微软store, 从中下载ubuntu, 2020年7月这个时间点有3个版本,随便哪个都可以啦.</p>
+<h1 id="打开ubuntu"><a href="#打开ubuntu" class="headerlink" title="打开ubuntu"></a>打开ubuntu</h1><p>你可能觉得我有毛病,为什么打开ubuntu也要单独写个段落?</p>
+<p>当然是为了提醒自己一些重要的事情.</p>
+<p><strong>一定要用管理员权限打开!!</strong></p>
+<p><strong>一定要用管理员权限打开!!</strong></p>
+<p><strong>一定要用管理员权限打开!!</strong></p>
+<p>第一次打开需要输入用户名和密码.</p>
+<h1 id="在ubuntu中安装docker"><a href="#在ubuntu中安装docker" class="headerlink" title="在ubuntu中安装docker"></a>在ubuntu中安装docker</h1><p>上面的步骤走完之后,就只需要按照官方文档来做就好了.</p>
+<p><a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/ubuntu/" title="https://docs.docker.com/engine/install/ubuntu/">https://docs.docker.com/engine/install/ubuntu/</a></p>
+<pre><code>$ sudo apt-get update
+
+$ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+$ sudo add-apt-repository \
+       &quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+       $(lsb_release -cs) \
+       stable&quot;
+
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io</code></pre>
+<h1 id="启动docker"><a href="#启动docker" class="headerlink" title="启动docker"></a>启动docker</h1><p>如果出现了什么奇奇怪怪的错误,把杀毒软件关掉再试试!!!!!</p>
+<pre><code>$ sudo service docker start
+$ sudo docker run hello-world</code></pre>
+<h1 id="将当前用户加入docker-group"><a href="#将当前用户加入docker-group" class="headerlink" title="将当前用户加入docker group"></a>将当前用户加入docker group</h1><p>因为docker的守护进程使用的端口是unix Socket 而不是tcp端口,而unix端口默认是root用户才可以访问, 所以之后每次docker的操作几乎都需要加上sudo,很麻烦.<br>所以,将当前登录的用户加入docker group之后,就可以省去sudo命令.</p>
+<pre><code>sudo groupadd docker             # 添加docker用户组
+sudo gpasswd -a $USER docker     # 将登陆用户加入到docker用户组中
+newgrp docker                    # 更新用户组
+docker version                   # 确认不使用sudo时是否可以访问Docker daemon</code></pre>
+<p><strong>USER 要用大写!!</strong></p>
+<p><strong>USER 要用大写!!</strong></p>
+<p><strong>USER 要用大写!!</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/14/win10%E7%8E%AF%E5%A2%83ubuntu%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%AE%89%E8%A3%85docker/" data-id="ckdjjt0g20000tlrc8qvafhgu" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-搭建自己的博客-github-hexo" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/14/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8D%9A%E5%AE%A2-github-hexo/" class="article-date">
+  <time datetime="2020-07-14T06:26:49.000Z" itemprop="datePublished">2020-07-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2020/07/14/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8D%9A%E5%AE%A2-github-hexo/">搭建自己的博客(github+hexo)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>为了加深记忆,也为了在以后想不起细节的时候可以查询,所以在这里记下步骤和坑.</p>
+<p>本文大量参考了知乎文章　<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26625249" title="https://zhuanlan.zhihu.com/p/26625249">https://zhuanlan.zhihu.com/p/26625249</a></p>
+<p><strong>基于win10(2004 19041.330)</strong></p>
+<h1 id="安装git"><a href="#安装git" class="headerlink" title="安装git"></a>安装git</h1><p><a target="_blank" rel="noopener" href="https://git-scm.com/downloads" title="https://git-scm.com/downloads">https://git-scm.com/downloads</a></p>
+<p>从git官网下载安装包,安装完成之后,在cmd中输入 <code>git -version</code> 确认安装是否成功.</p>
+<h1 id="连接github"><a href="#连接github" class="headerlink" title="连接github"></a>连接github</h1><p>在cmd中输入 用户名和邮箱</p>
+<p><code>git config --global user.name &quot;GitHub 用户名&quot;</code><br><code>git config --global user.email &quot;GitHub 邮箱&quot;</code></p>
+<p>生成ssh key,名称和密码可以为空</p>
+<p><code>ssh-keygen -t rsa -C &quot;GitHub 邮箱&quot;</code></p>
+<p>添加ssh key到github.</p>
+<p>在生成ssh key时,cmd回返回信息key生成在哪个文件夹,打开那个文件夹,复制里面的内容, 在github的 setting -&gt; SSH and GPG keys -&gt; SSH keys中新建SSH key,把前面复制的内容粘贴进来.</p>
+<p>验证连接<br>在cmd中输入 <code>ssh -T git@github.com</code></p>
+<h1 id="安装node"><a href="#安装node" class="headerlink" title="安装node"></a>安装node</h1><p><a target="_blank" rel="noopener" href="https://nodejs.org/en/" title="https://nodejs.org/en/">https://nodejs.org/en/</a><br>从node官网下载安装包,安装完成之后,在cmd中输入<code>node -v</code> 确认安装是否成功.</p>
+<h1 id="安装hexo"><a href="#安装hexo" class="headerlink" title="安装hexo"></a>安装hexo</h1><p>在任意路径创建文件夹(比如”MyBlog”),打开cmd,在MyBlog文件夹目录下,安装hexo</p>
+<p><code>npm install -g hexo-cli</code></p>
+<p>完成之后初始化blog(在MyBlog文件夹中创建blog文件夹,之后的博客文件都是在这个blog文件夹中)</p>
+<p><code>hexo init blog</code></p>
+<p>注意,上面两步操作中可能会出现一些乱七八糟的warn,无视就好.</p>
+<p>完成初始化之后可以在本地测试一下.<br>在cmd中,进入blog目录(上面新建的文件夹),输入以下内容</p>
+<p><code>hexo new test_my_site</code></p>
+<p><code>hexo g</code></p>
+<p><code>hexo s</code></p>
+<p>打开浏览器, 输入<code>localhost:4000</code>,就可以看到例子了.</p>
+<h1 id="推送网站"><a href="#推送网站" class="headerlink" title="推送网站"></a>推送网站</h1><p>在github上新建repository: <code>XXXX.github.io</code><br><strong>这里注意,repo的名字一定要用这种形式,不然无法访问</strong></p>
+<p>打开MyBlog-&gt;blog目录下的_config.yml文件,下拉到文件的最下方,修改为如下内容</p>
+<pre><code>deploy:
+  type: git
+  repo: git@github.com:YYYY/XXXX.github.io.git
+  branch: master
+
+YYYY : username
+XXXX.github.io : 上面新建的repo名
+注意,repo后面要加上.git</code></pre>
+<p>打开CMD,在MyBlog -&gt; blog文件目录下,安装git插件</p>
+<pre><code>npm install hexo-deployer-git --save</code></pre>
+<p>然后输入</p>
+<pre><code>hexo clean
+hexo d -g</code></pre>
+<p>完成之后,就可以在浏览器中输入 <code>XXXX.github.io</code> 来访问自己的blog了.</p>
+<h1 id="绑定域名"><a href="#绑定域名" class="headerlink" title="绑定域名"></a>绑定域名</h1><p>这次没做,所以先空着.以后申请了域名再来更新</p>
+<h1 id="更换主题"><a href="#更换主题" class="headerlink" title="更换主题"></a>更换主题</h1><p>先空着</p>
+<h1 id="Markdown语法"><a href="#Markdown语法" class="headerlink" title="Markdown语法"></a>Markdown语法</h1><p>比html更简单的标记语言.不过还是找个Markdown的编辑器来写更方便.我用的是Markdownpad <a target="_blank" rel="noopener" href="http://www.markdownpad.com/" title="http://www.markdownpad.com/">http://www.markdownpad.com/</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/14/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8D%9A%E5%AE%A2-github-hexo/" data-id="ckdjjt0gi0002tlrcf0u44y8y" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/08/07/%E5%9C%A8Mac%E4%B8%AD%E7%BC%96%E8%AF%91openjdk9%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/17/%E5%9C%A8docker%E4%B8%AD%E6%90%AD%E5%BB%BAJAVA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/">在docker中搭建JAVA开发环境</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/14/win10%E7%8E%AF%E5%A2%83ubuntu%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%AE%89%E8%A3%85docker/">win10环境ubuntu子系统中安装docker</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/14/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8D%9A%E5%AE%A2-github-hexo/">搭建自己的博客(github+hexo)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>

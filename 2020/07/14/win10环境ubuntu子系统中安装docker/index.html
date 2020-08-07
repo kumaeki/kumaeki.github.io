@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>win10环境ubuntu子系统中安装docker | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="历经千辛万苦才成功,也是不容易.把各种坑记下来. Win10的版本虽然大家都是win10, 但是子版本不同,会造成docker是否可用. docker是基于linux的,windows的支持确实不好.wsl2才完全支持, wsl1可以洗洗睡了. WIN + R 打开运行栏,输入winver 可以确认win10的详细版本,只有2004以上才支持wsl2. 如果低于2004, 先升级到2004(win">
+<meta property="og:type" content="article">
+<meta property="og:title" content="win10环境ubuntu子系统中安装docker">
+<meta property="og:url" content="http://yoursite.com/2020/07/14/win10%E7%8E%AF%E5%A2%83ubuntu%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%AE%89%E8%A3%85docker/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="历经千辛万苦才成功,也是不容易.把各种坑记下来. Win10的版本虽然大家都是win10, 但是子版本不同,会造成docker是否可用. docker是基于linux的,windows的支持确实不好.wsl2才完全支持, wsl1可以洗洗睡了. WIN + R 打开运行栏,输入winver 可以确认win10的详细版本,只有2004以上才支持wsl2. 如果低于2004, 先升级到2004(win">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-07-14T08:29:01.000Z">
+<meta property="article:modified_time" content="2020-08-07T00:43:04.292Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-win10环境ubuntu子系统中安装docker" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/14/win10%E7%8E%AF%E5%A2%83ubuntu%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%AE%89%E8%A3%85docker/" class="article-date">
+  <time datetime="2020-07-14T08:29:01.000Z" itemprop="datePublished">2020-07-14</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      win10环境ubuntu子系统中安装docker
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>历经千辛万苦才成功,也是不容易.把各种坑记下来.</p>
+<h1 id="Win10的版本"><a href="#Win10的版本" class="headerlink" title="Win10的版本"></a>Win10的版本</h1><p>虽然大家都是win10, 但是子版本不同,会造成docker是否可用.</p>
+<p>docker是基于linux的,windows的支持确实不好.wsl2才完全支持, wsl1可以洗洗睡了.</p>
+<pre><code>WIN + R 打开运行栏,输入winver</code></pre>
+<p>可以确认win10的详细版本,只有2004以上才支持wsl2.</p>
+<p>如果低于2004, 先升级到2004(windosw的update, 或者手动升级<a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/software-download/windows10" title="https://www.microsoft.com/en-us/software-download/windows10">https://www.microsoft.com/en-us/software-download/windows10</a>)</p>
+<h1 id="开启WSl2"><a href="#开启WSl2" class="headerlink" title="开启WSl2"></a>开启WSl2</h1><p>用管理员权限打开powershell,输入以下命令开启wsl,并将wsl2设置为默认</p>
+<pre><code>dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+wsl --set-default-version 2</code></pre>
+<h1 id="安装ubuntu"><a href="#安装ubuntu" class="headerlink" title="安装ubuntu"></a>安装ubuntu</h1><p>打开微软store, 从中下载ubuntu, 2020年7月这个时间点有3个版本,随便哪个都可以啦.</p>
+<h1 id="打开ubuntu"><a href="#打开ubuntu" class="headerlink" title="打开ubuntu"></a>打开ubuntu</h1><p>你可能觉得我有毛病,为什么打开ubuntu也要单独写个段落?</p>
+<p>当然是为了提醒自己一些重要的事情.</p>
+<p><strong>一定要用管理员权限打开!!</strong></p>
+<p><strong>一定要用管理员权限打开!!</strong></p>
+<p><strong>一定要用管理员权限打开!!</strong></p>
+<p>第一次打开需要输入用户名和密码.</p>
+<h1 id="在ubuntu中安装docker"><a href="#在ubuntu中安装docker" class="headerlink" title="在ubuntu中安装docker"></a>在ubuntu中安装docker</h1><p>上面的步骤走完之后,就只需要按照官方文档来做就好了.</p>
+<p><a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/ubuntu/" title="https://docs.docker.com/engine/install/ubuntu/">https://docs.docker.com/engine/install/ubuntu/</a></p>
+<pre><code>$ sudo apt-get update
+
+$ sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+$ sudo add-apt-repository \
+       &quot;deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+       $(lsb_release -cs) \
+       stable&quot;
+
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io</code></pre>
+<h1 id="启动docker"><a href="#启动docker" class="headerlink" title="启动docker"></a>启动docker</h1><p>如果出现了什么奇奇怪怪的错误,把杀毒软件关掉再试试!!!!!</p>
+<pre><code>$ sudo service docker start
+$ sudo docker run hello-world</code></pre>
+<h1 id="将当前用户加入docker-group"><a href="#将当前用户加入docker-group" class="headerlink" title="将当前用户加入docker group"></a>将当前用户加入docker group</h1><p>因为docker的守护进程使用的端口是unix Socket 而不是tcp端口,而unix端口默认是root用户才可以访问, 所以之后每次docker的操作几乎都需要加上sudo,很麻烦.<br>所以,将当前登录的用户加入docker group之后,就可以省去sudo命令.</p>
+<pre><code>sudo groupadd docker             # 添加docker用户组
+sudo gpasswd -a $USER docker     # 将登陆用户加入到docker用户组中
+newgrp docker                    # 更新用户组
+docker version                   # 确认不使用sudo时是否可以访问Docker daemon</code></pre>
+<p><strong>USER 要用大写!!</strong></p>
+<p><strong>USER 要用大写!!</strong></p>
+<p><strong>USER 要用大写!!</strong></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2020/07/14/win10%E7%8E%AF%E5%A2%83ubuntu%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%AE%89%E8%A3%85docker/" data-id="ckdjjt0g20000tlrc8qvafhgu" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/17/%E5%9C%A8docker%E4%B8%AD%E6%90%AD%E5%BB%BAJAVA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          在docker中搭建JAVA开发环境
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/14/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8D%9A%E5%AE%A2-github-hexo/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">搭建自己的博客(github+hexo)</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/08/">August 2020</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/07/">July 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/08/07/%E5%9C%A8Mac%E4%B8%AD%E7%BC%96%E8%AF%91openjdk9%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/17/%E5%9C%A8docker%E4%B8%AD%E6%90%AD%E5%BB%BAJAVA%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83/">在docker中搭建JAVA开发环境</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/14/win10%E7%8E%AF%E5%A2%83ubuntu%E5%AD%90%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%AE%89%E8%A3%85docker/">win10环境ubuntu子系统中安装docker</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/14/%E6%90%AD%E5%BB%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8D%9A%E5%AE%A2-github-hexo/">搭建自己的博客(github+hexo)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
